@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_incident_ticket_list" model="ir.ui.view">
+        <field name="name">incident.ticket.list</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <list string="Incidencias">
+                <field name="name"/>
+                <field name="channel"/>
+                <field name="process"/>
+                <field name="application"/>
+                <field name="suggested_process"/>
+                <field name="suggested_group"/>
+                <field name="confidence"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_incident_ticket_form" model="ir.ui.view">
+        <field name="name">incident.ticket.form</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Incidencia">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="channel"/>
+                        <field name="failure_type"/>
+                        <field name="process"/>
+                        <field name="application"/>
+                        <field name="summary"/>
+                        <field name="description"/>
+                    </group>
+
+                    <group string="Resultado del análisis inteligente">
+                        <field name="suggested_process"/>
+                        <field name="suggested_application"/>
+                        <field name="suggested_scenario"/>
+                        <field name="suggested_group"/>
+                        <field name="confidence"/>
+                        <field name="state"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_incident_ticket" model="ir.actions.act_window">
+        <field name="name">Incidencias</field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_incident_root"
+              name="Gestión Inteligente de Incidencias"
+              sequence="10"/>
+
+    <menuitem id="menu_incident_ticket"
+              name="Registro de Incidencias"
+              parent="menu_incident_root"
+              action="action_incident_ticket"
+              sequence="10"/>
+</odoo>
