@@ -1,2 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_incident_ticket,access.incident.ticket,model_incident_ticket,base.group_user,1,1,1,1
+access_incident_rule,access.incident.rule,model_incident_rule,base.group_user,1,1,1,1
+access_incident_process,access.incident.process,model_incident_process,base.group_user,1,1,1,1
+access_incident_application,access.incident.application,model_incident_application,base.group_user,1,1,1,1
+access_incident_summary,access.incident.summary,model_incident_summary,base.group_user,1,1,1,1

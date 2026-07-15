@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================
+         GRUPOS DE SEGURIDAD
+         ===================================================== -->
+
+    <!-- Asesor de Centro de Atención al Cliente -->
+    <record id="group_cac_advisor" model="res.groups">
+        <field name="name">Asesor CAC</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+    <!-- Analista de Soporte N1 -->
+    <record id="group_n1_analyst" model="res.groups">
+        <field name="name">Analista N1</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+    <!-- Administrador funcional del módulo -->
+    <record id="group_functional_admin" model="res.groups">
+        <field name="name">Administrador Funcional</field>
+        <field name="category_id" ref="base.module_category_hidden"/>
+    </record>
+
+</odoo>

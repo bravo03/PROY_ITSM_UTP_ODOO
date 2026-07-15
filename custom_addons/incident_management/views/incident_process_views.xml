@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Vista de lista del catálogo de procesos críticos -->
+    <record id="view_incident_process_list" model="ir.ui.view">
+        <field name="name">incident.process.list</field>
+        <field name="model">incident.process</field>
+        <field name="arch" type="xml">
+            <list string="Procesos Críticos">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista formulario para registrar o editar procesos -->
+    <record id="view_incident_process_form" model="ir.ui.view">
+        <field name="name">incident.process.form</field>
+        <field name="model">incident.process</field>
+        <field name="arch" type="xml">
+            <form string="Proceso Crítico">
+                <sheet>
+                    <group>
+                        <field name="code"/>
+                        <field name="name"/>
+                        <field name="active"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción que abre el catálogo -->
+    <record id="action_incident_process" model="ir.actions.act_window">
+        <field name="name">Procesos Críticos</field>
+        <field name="res_model">incident.process</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+   
+
+</odoo>

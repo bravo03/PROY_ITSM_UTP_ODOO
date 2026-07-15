@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <odoo>
+
+    <!-- =====================================================
+         VISTA DE LISTA DE INCIDENCIAS
+         ===================================================== -->
     <record id="view_incident_ticket_list" model="ir.ui.view">
         <field name="name">incident.ticket.list</field>
         <field name="model">incident.ticket</field>
+
         <field name="arch" type="xml">
             <list string="Incidencias">
                 <field name="name"/>
                 <field name="channel"/>
-                <field name="process"/>
-                <field name="application"/>
+                <field name="failure_type"/>
+                <field name="process_id"/>
+                <field name="application_id"/>
+                <field name="summary_id"/>
                 <field name="suggested_process"/>
                 <field name="suggested_group"/>
                 <field name="confidence"/>
@@ -17,48 +25,270 @@
         </field>
     </record>
 
+
+    <!-- =====================================================
+         VISTA DE FORMULARIO DE INCIDENCIAS
+         ===================================================== -->
     <record id="view_incident_ticket_form" model="ir.ui.view">
         <field name="name">incident.ticket.form</field>
         <field name="model">incident.ticket</field>
+
         <field name="arch" type="xml">
-            <form string="Incidencia">
+            <form string="Registro inteligente de incidencia">
+
+                <!-- Barra superior del formulario -->
+                <header>
+
+                    <!-- Ejecuta el método Python action_analyze_incident -->
+                    <button name="action_analyze_incident"
+                            type="object"
+                            string="Analizar incidencia"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+
+                    <!-- Muestra el estado actual del ticket -->
+                    <field name="state"
+                           widget="statusbar"
+                           statusbar_visible="draft,analyzed,assigned,closed"/>
+
+                </header>
+
                 <sheet>
-                    <group>
-                        <field name="name"/>
+
+                    <!-- Título principal de la pantalla -->
+                    <div class="oe_title">
+                        <h1>
+                            Registro inteligente de incidencias
+                        </h1>
+
+                        <!--
+                            El número se muestra cuando ya no está en borrador.
+                            Por ahora aparecerá después del análisis.
+                        -->
+                        <h2 invisible="state == 'draft'">
+                            <field name="name" readonly="1"/>
+                        </h2>
+                    </div>
+
+                    <!-- Datos seleccionados por el usuario -->
+                    <group string="Datos de la incidencia">
+
+                        <!-- Canal fijo: Atención Presencial -->
                         <field name="channel"/>
+
+                        <!-- Combo: Transacción venta o postventa -->
                         <field name="failure_type"/>
-                        <field name="process"/>
-                        <field name="application"/>
-                        <field name="summary"/>
-                        <field name="description"/>
+
+                        <!-- Catálogo de procesos críticos -->
+                        <field name="process_id"
+                               options="{'no_create': True, 'no_open': True}"/>
+
+                        <!--
+                            Solo muestra aplicaciones relacionadas
+                            con el proceso seleccionado.
+                        -->
+                        <field name="application_id"
+                               domain="[('process_id', '=', process_id)]"
+                               options="{'no_create': True, 'no_open': True}"/>
+
+                        <!--
+                            Solo muestra resúmenes asociados al proceso
+                            y a la aplicación seleccionados.
+                        -->
+                        <field name="summary_id"
+                               domain="[('process_id', '=', process_id), ('application_id', '=', application_id)]"
+                               options="{'no_create': True, 'no_open': True}"/>
+
+                        <!-- Campo libre que analiza el motor inteligente -->
+                        <field name="description"
+                               placeholder="Describa detalladamente la falla presentada por el cliente..."/>
+
                     </group>
 
-                    <group string="Resultado del análisis inteligente">
+                    <!--
+                        Esta sección solo aparece después de ejecutar
+                        el análisis de la descripción.
+                    -->
+                    <group string="Recomendación del sistema"
+                           invisible="state == 'draft'">
+
                         <field name="suggested_process"/>
                         <field name="suggested_application"/>
                         <field name="suggested_scenario"/>
                         <field name="suggested_group"/>
                         <field name="confidence"/>
-                        <field name="state"/>
+                        <field name="is_reclassified"/>
+                        <field name="reclassification_reason"/>
+
                     </group>
+
                 </sheet>
             </form>
         </field>
     </record>
 
+
+    <!-- =====================================================
+         ACCIÓN Y MENÚ DE INCIDENCIAS
+         ===================================================== -->
     <record id="action_incident_ticket" model="ir.actions.act_window">
         <field name="name">Incidencias</field>
         <field name="res_model">incident.ticket</field>
         <field name="view_mode">list,form</field>
     </record>
 
-    <menuitem id="menu_incident_root"
-              name="Gestión Inteligente de Incidencias"
-              sequence="10"/>
+    <!-- =====================================================
+     ACCIÓN: REGISTRAR UNA NUEVA INCIDENCIA
+     ===================================================== -->
 
-    <menuitem id="menu_incident_ticket"
-              name="Registro de Incidencias"
-              parent="menu_incident_root"
-              action="action_incident_ticket"
-              sequence="10"/>
+    <!--
+        Esta acción abre directamente el formulario del Portal CAC.
+        Al utilizar únicamente el modo "form" y no indicar un res_id,
+        Odoo mostrará un formulario nuevo para registrar una incidencia.
+    -->
+    <record id="action_incident_ticket_register"
+            model="ir.actions.act_window">
+
+        <!-- Nombre visible de la pantalla -->
+        <field name="name">Registrar incidencia</field>
+
+        <!-- Modelo sobre el que trabajará la acción -->
+        <field name="res_model">incident.ticket</field>
+
+        <!-- Abre directamente el formulario, sin mostrar primero la lista -->
+        <field name="view_mode">form</field>
+
+        <!-- Fuerza el uso de nuestra vista principal de registro -->
+        <field name="view_id"
+               ref="view_incident_ticket_form"/>
+
+        <!-- Abre la pantalla en la ventana principal de Odoo -->
+        <field name="target">current</field>
+
+        <!--
+            Valores iniciales del nuevo registro.
+            El ticket comienza siempre como borrador.
+        -->
+        <field name="context">
+            {
+                'default_state': 'draft'
+            }
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN: MIS INCIDENCIAS
+         ===================================================== -->
+
+    <!--
+        Esta acción muestra únicamente las incidencias creadas
+        por el usuario conectado.
+
+        En Odoo, create_uid representa al usuario que creó el registro.
+        La variable uid corresponde al usuario que inició sesión.
+    -->
+    <record id="action_my_incident_tickets"
+            model="ir.actions.act_window">
+
+        <!-- Nombre visible en el Portal CAC -->
+        <field name="name">Mis incidencias</field>
+
+        <!-- Modelo consultado -->
+        <field name="res_model">incident.ticket</field>
+
+        <!-- Primero muestra la lista y permite abrir el formulario -->
+        <field name="view_mode">list,form</field>
+
+        <!-- Filtra los registros creados por el usuario actual -->
+        <field name="domain">
+            [('create_uid', '=', uid)]
+        </field>
+
+        <!--
+            Contexto vacío para evitar filtros adicionales
+            heredados desde otras pantallas.
+        -->
+        <field name="context">{}</field>
+    </record>
+
+
+
+
+
+
+
+    <!-- =====================================================
+         VISTA DE LISTA DE REGLAS
+         ===================================================== -->
+    <record id="view_incident_rule_list" model="ir.ui.view">
+        <field name="name">incident.rule.list</field>
+        <field name="model">incident.rule</field>
+
+        <field name="arch" type="xml">
+            <list string="Reglas de Clasificación">
+                <field name="name"/>
+                <field name="keywords"/>
+                <field name="match_type"/>
+                <field name="suggested_process"/>
+                <field name="suggested_application"/>
+                <field name="suggested_scenario"/>
+                <field name="suggested_group"/>
+                <field name="weight"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         VISTA DE FORMULARIO DE REGLAS
+         ===================================================== -->
+    <record id="view_incident_rule_form" model="ir.ui.view">
+        <field name="name">incident.rule.form</field>
+        <field name="model">incident.rule</field>
+
+        <field name="arch" type="xml">
+            <form string="Regla de Clasificación">
+                <sheet>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"
+                                   placeholder="Nombre de la regla"/>
+                        </h1>
+                    </div>
+
+                    <group string="Configuración de la regla">
+                        <field name="keywords"
+                               placeholder="reposicion, chip, sim, iccid, bloqueo"/>
+                        <field name="match_type"/>
+                        <field name="weight"/>
+                        <field name="active"/>
+                    </group>
+
+                    <group string="Recomendación generada">
+                        <field name="suggested_process"/>
+                        <field name="suggested_application"/>
+                        <field name="suggested_scenario"/>
+                        <field name="suggested_group"/>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN Y MENÚ DE REGLAS
+         ===================================================== -->
+    <record id="action_incident_rule" model="ir.actions.act_window">
+        <field name="name">Reglas de Clasificación</field>
+        <field name="res_model">incident.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+ 
+
 </odoo>

@@ -11,8 +11,12 @@
     "category": "Services/Helpdesk",
     "depends": ["base"],
     "data": [
+        "security/security.xml",
         "security/ir.model.access.csv",
         "views/incident_ticket_views.xml",
+        "views/incident_process_views.xml",
+        "views/incident_catalog_views.xml",
+        "views/incident_menus.xml",
     ],
     "installable": True,
     "application": True,
