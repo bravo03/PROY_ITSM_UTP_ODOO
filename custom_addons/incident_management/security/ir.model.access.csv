@@ -4,3 +4,4 @@ access_incident_rule,access.incident.rule,model_incident_rule,base.group_user,1,
 access_incident_process,access.incident.process,model_incident_process,base.group_user,1,1,1,1
 access_incident_application,access.incident.application,model_incident_application,base.group_user,1,1,1,1
 access_incident_summary,access.incident.summary,model_incident_summary,base.group_user,1,1,1,1
+access_incident_team,access.incident.team,model_incident_team,base.group_user,1,1,1,1

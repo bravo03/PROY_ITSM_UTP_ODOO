@@ -81,6 +81,11 @@
               name="Reglas de clasificación"
               parent="incident_management.menu_incident_configuration_root"
               action="incident_management.action_incident_rule"
-              sequence="40"/>
+              sequence="50"/>
 
+    <menuitem id="menu_incident_team"
+              name="Equipos resolutores"
+              parent="incident_management.menu_incident_configuration_root"
+              action="incident_management.action_incident_team"
+              sequence="40"/>
 </odoo>

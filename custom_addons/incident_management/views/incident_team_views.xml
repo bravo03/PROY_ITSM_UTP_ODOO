@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Lista de equipos resolutores -->
+    <record id="view_incident_team_list" model="ir.ui.view">
+        <field name="name">incident.team.list</field>
+        <field name="model">incident.team</field>
+        <field name="arch" type="xml">
+            <list string="Equipos resolutores">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="description"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Formulario de equipo resolutor -->
+    <record id="view_incident_team_form" model="ir.ui.view">
+        <field name="name">incident.team.form</field>
+        <field name="model">incident.team</field>
+        <field name="arch" type="xml">
+            <form string="Equipo resolutor">
+                <sheet>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"
+                                   placeholder="Nombre del equipo"/>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <field name="code"/>
+                        <field name="active"/>
+                    </group>
+
+                    <group>
+                        <field name="description"
+                               placeholder="Describa la responsabilidad del equipo..."/>
+                    </group>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_incident_team" model="ir.actions.act_window">
+        <field name="name">Equipos resolutores</field>
+        <field name="res_model">incident.team</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

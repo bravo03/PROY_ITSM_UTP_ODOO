@@ -13,9 +13,12 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "data/incident_sequence.xml",
+        
         "views/incident_ticket_views.xml",
         "views/incident_process_views.xml",
         "views/incident_catalog_views.xml",
+        "views/incident_team_views.xml",
         "views/incident_menus.xml",
     ],
     "installable": True,

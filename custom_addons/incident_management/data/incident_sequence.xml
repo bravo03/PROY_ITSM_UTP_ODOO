@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!--
+        noupdate="1" evita que una actualización posterior del módulo
+        reinicie o modifique la secuencia existente.
+    -->
+    <data noupdate="1">
+
+        <record id="sequence_incident_ticket" model="ir.sequence">
+
+            <field name="name">
+                Secuencia de incidencias ITSM
+            </field>
+
+            <!-- Código utilizado por next_by_code() -->
+            <field name="code">
+                incident.ticket
+            </field>
+
+            <!-- Prefijo del ticket -->
+            <field name="prefix">
+                INC
+            </field>
+
+            <!-- INC + 10 dígitos -->
+            <field name="padding">
+                10
+            </field>
+
+            <!-- Incremento correlativo -->
+            <field name="number_increment">
+                1
+            </field>
+
+        </record>
+
+    </data>
+
+</odoo>
