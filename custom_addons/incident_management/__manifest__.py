@@ -19,6 +19,7 @@
         "views/incident_process_views.xml",
         "views/incident_catalog_views.xml",
         "views/incident_team_views.xml",
+        "views/incident_n2_views.xml",
         "views/incident_menus.xml",
     ],
     "installable": True,

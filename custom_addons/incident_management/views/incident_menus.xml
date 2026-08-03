@@ -50,6 +50,21 @@
               sequence="10"/>
 
 
+     <!-- =====================================================
+     OPERACIÓN N2
+     ===================================================== -->
+
+     <menuitem id="menu_n2_operation_root"
+               name="Operación N2"
+               parent="incident_management.menu_incident_root"
+               sequence="30"/>
+
+     <menuitem id="menu_provision_queue"
+               name="Bandeja PROVISIÓN"
+               parent="incident_management.menu_n2_operation_root"
+               action="incident_management.action_incident_ticket_provision"
+               sequence="10"/>
+
     <!-- =====================================================
          CONFIGURACIÓN FUNCIONAL
          ===================================================== -->
@@ -57,7 +72,7 @@
     <menuitem id="menu_incident_configuration_root"
               name="Configuración"
               parent="incident_management.menu_incident_root"
-              sequence="30"/>
+              sequence="40"/>
 
     <menuitem id="menu_incident_process"
               name="Procesos críticos"

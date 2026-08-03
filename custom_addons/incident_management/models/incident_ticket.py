@@ -159,6 +159,48 @@ class IncidentTicket(models.Model):
         readonly=True,
     )
 
+    # Analista que tomó la incidencia para su atención.
+    assigned_user_id = fields.Many2one(
+        comodel_name="res.users",
+        string="Analista asignado",
+        readonly=True,
+        ondelete="set null",
+    )
+
+    # Fecha y hora en que el analista inició la atención.
+    attention_date = fields.Datetime(
+        string="Fecha de inicio de atención",
+        readonly=True,
+    )
+
+    # Fecha y hora en que la incidencia fue resuelta.
+    resolved_date = fields.Datetime(
+        string="Fecha de resolución",
+        readonly=True,
+    )
+
+    #cierre de la incidencia
+    closed_date = fields.Datetime(
+        string="Fecha de cierre",
+        readonly=True,
+    )
+
+
+    # Detalle de la solución aplicada por el analista.
+    resolution_notes = fields.Text(
+        string="Detalle de resolución",
+    )
+
+
+    priority = fields.Selection(
+        [
+            ("critical", "CRÍTICA"),
+        ],
+        string="Prioridad",
+        default="critical",
+        readonly=True,
+    )
+
     # ---------------------------------------------------------
     # TRAZABILIDAD DE LA DECISIÓN
     # ---------------------------------------------------------
@@ -192,6 +234,8 @@ class IncidentTicket(models.Model):
             ("analyzed", "Analizado"),
             ("created", "Incidencia generada"),
             ("assigned", "Asignado"),
+            ("in_progress", "En atención"),
+            ("resolved", "Resuelto"),
             ("closed", "Cerrado"),
         ],
         string="Estado",
@@ -452,8 +496,7 @@ class IncidentTicket(models.Model):
 
         if not self.evidence_ids:
             raise UserError(
-                "Debe adjuntar evidencia donde se visualice el error presentado "
-                "antes de confirmar la generación de la incidencia."
+              "Estimado usuario, adjunte evidencia donde se visualice el error que impide continuar con el proceso."
             )
 
         # -----------------------------------------------------
@@ -496,26 +539,112 @@ class IncidentTicket(models.Model):
         # aquí NO se genera todavía el ticket.
         return True
 
-    def action_generate_incident(self):
+
+
+    # ---------------------------------------------------------
+    # OPERACIÓN DEL EQUIPO RESOLUTOR
+    # ---------------------------------------------------------
+
+    def action_take_incident(self):
         """
-        Genera la incidencia cuando la clasificación coincide
-        o cuando el motor no identificó una regla aplicable.
+        Permite que el analista actual tome la incidencia.
+
+        Registra al usuario responsable y cambia el estado
+        de la incidencia a Asignado.
         """
 
         self.ensure_one()
 
-        if self.state != "analyzed":
+        if self.state != "created":
             raise UserError(
-                "La incidencia debe analizarse antes de generarse."
+                "Solo pueden tomarse incidencias que se encuentren "
+                "en estado Incidencia generada."
             )
 
-        if self.is_reclassified:
+        self.assigned_user_id = self.env.user
+        self.assigned_date = fields.Datetime.now()
+        self.state = "assigned"
+
+        return True
+
+    def action_start_attention(self):
+        """
+        Registra el inicio efectivo de la atención técnica.
+        """
+
+        self.ensure_one()
+
+        if self.state != "assigned":
             raise UserError(
-                "Debe aceptar la recomendación o mantener "
-                "la clasificación original."
+                "La incidencia debe estar asignada antes de iniciar "
+                "su atención."
             )
 
-        return self._finalize_incident_creation()
+        if self.assigned_user_id != self.env.user:
+            raise UserError(
+                "Solo el analista asignado puede iniciar la atención."
+            )
+
+        self.attention_date = fields.Datetime.now()
+        self.state = "in_progress"
+
+        return True
+
+    def action_resolve_incident(self):
+        """
+        Marca la incidencia como resuelta.
+
+        Exige que el analista haya registrado el detalle
+        de la solución aplicada.
+        """
+
+        self.ensure_one()
+
+        if self.state != "in_progress":
+            raise UserError(
+                "La incidencia debe encontrarse en atención "
+                "antes de ser resuelta."
+            )
+
+        if self.assigned_user_id != self.env.user:
+            raise UserError(
+                "Solo el analista asignado puede resolver la incidencia."
+            )
+
+        if not self.resolution_notes:
+            raise UserError(
+                "Debe registrar el detalle de la solución aplicada "
+                "antes de resolver la incidencia."
+            )
+
+        self.resolved_date = fields.Datetime.now()
+        self.state = "resolved"
+
+        return True
+
+       
+
+
+    def action_close_incident(self):
+        """
+        Cierra definitivamente una incidencia resuelta.
+
+        Solo permite el cierre cuando el ticket se encuentra
+        en estado Resuelto.
+        """
+
+        self.ensure_one()
+
+        if self.state != "resolved":
+            raise UserError(
+                "Solo pueden cerrarse incidencias que se encuentren "
+                "en estado Resuelto."
+            )
+
+        self.closed_date = fields.Datetime.now()
+        self.state = "closed"
+
+        return True
 
     # ---------------------------------------------------------
     # GENERACIÓN DEL NÚMERO INC
