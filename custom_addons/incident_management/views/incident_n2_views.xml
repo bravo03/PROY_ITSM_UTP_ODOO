@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
     <!-- =====================================================
          LISTA DE INCIDENCIAS ASIGNADAS A PROVISIÓN
          ===================================================== -->
@@ -21,6 +20,11 @@
                 <field name="attention_date"/>
                 <field name="resolved_date"/>
                 <field name="closed_date"/>
+
+                <field name="sla_target_minutes" string="SLA (min)"/>
+                <field name="sla_deadline" string="Fecha límite"/>
+                <field name="sla_status" string="Estado SLA" widget="badge" decoration-success="sla_status == 'met' or sla_status == 'on_time'" decoration-warning="sla_status == 'warning'" decoration-danger="sla_status == 'breached'"/>
+
                 <field name="state"/>
             </list>
         </field>
@@ -35,9 +39,7 @@
 
         <field name="name">incident.ticket.provision.form</field>
         <field name="model">incident.ticket</field>
-
         <field name="arch" type="xml">
-
             <form string="Atención de incidencia">
 
                 <header>
@@ -78,6 +80,12 @@
                             <field name="attention_date" readonly="1"/>
                             <field name="resolved_date" readonly="1"/>
                             <field name="closed_date" readonly="1"/>
+
+                            <field name="sla_target_minutes" readonly="1"/>
+                            <field name="sla_deadline" readonly="1"/>
+                            <field name="sla_resolution_minutes" readonly="1"/>
+                            <field name="sla_status" widget="badge" readonly="1" decoration-success="sla_status == 'met' or sla_status == 'on_time'" decoration-warning="sla_status == 'warning'" decoration-danger="sla_status == 'breached'"/>
+
                         </group>
 
                         <group>
@@ -101,7 +109,6 @@
          ===================================================== -->
 
     <record id="action_incident_ticket_provision" model="ir.actions.act_window">
-
         <field name="name">Bandeja PROVISIÓN</field>
         <field name="res_model">incident.ticket</field>
         <field name="view_mode">list,form</field>
@@ -117,7 +124,6 @@
                 'create': False
             }
         </field>
-
     </record>
 
 

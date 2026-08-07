@@ -2,24 +2,19 @@
 <odoo>
 
     <!-- Registro único del dashboard -->
-    <record id="incident_dashboard_main"
-            model="incident.dashboard">
+    <record id="incident_dashboard_main" model="incident.dashboard">
         <field name="name">Dashboard Operacional</field>
     </record>
 
     <!-- Vista principal -->
-    <record id="view_incident_dashboard_form"
-            model="ir.ui.view">
+    <record id="view_incident_dashboard_form" model="ir.ui.view">
 
         <field name="name">incident.dashboard.form</field>
         <field name="model">incident.dashboard</field>
 
         <field name="arch" type="xml">
 
-            <form string="Dashboard Operacional"
-                  create="0"
-                  edit="0"
-                  delete="0">
+            <form string="Dashboard Operacional" create="0" edit="0" delete="0">
 
                 <sheet>
 
@@ -36,16 +31,12 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Incidencias generadas
-                                    </h5>
+                                    <h5 class="card-title"> Incidencias generadas </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="total_incidents"
-                                               nolabel="1"/>
+                                        <field name="total_incidents" nolabel="1"/>
+                                        <span class="fs-6 text-muted">incidencias</span>
                                     </div>
-                                    <span class="text-muted">
-                                        Total registrado
-                                    </span>
+                                    <span class="text-muted"> Total registrado </span>
                                 </div>
                             </div>
                         </div>
@@ -54,16 +45,11 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Pendientes de atención
-                                    </h5>
+                                    <h5 class="card-title"> Pendientes de atención </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="pending_incidents"
-                                               nolabel="1"/>
+                                        <field name="pending_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Aún no tomadas por N2
-                                    </span>
+                                    <span class="text-muted"> Aún no tomadas por N2 </span>
                                 </div>
                             </div>
                         </div>
@@ -72,16 +58,11 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Asignadas
-                                    </h5>
+                                    <h5 class="card-title"> Asignadas </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="assigned_incidents"
-                                               nolabel="1"/>
+                                        <field name="assigned_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Con analista responsable
-                                    </span>
+                                    <span class="text-muted"> Con analista responsable </span>
                                 </div>
                             </div>
                         </div>
@@ -90,16 +71,11 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        En atención
-                                    </h5>
+                                    <h5 class="card-title"> En atención </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="in_progress_incidents"
-                                               nolabel="1"/>
+                                        <field name="in_progress_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Atención técnica activa
-                                    </span>
+                                    <span class="text-muted"> Atención técnica activa </span>
                                 </div>
                             </div>
                         </div>
@@ -108,16 +84,11 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Resueltas
-                                    </h5>
+                                    <h5 class="card-title"> Resueltas </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="resolved_incidents"
-                                               nolabel="1"/>
+                                        <field name="resolved_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Pendientes del cierre definitivo
-                                    </span>
+                                    <span class="text-muted"> Pendientes del cierre definitivo </span>
                                 </div>
                             </div>
                         </div>
@@ -126,16 +97,11 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Cerradas
-                                    </h5>
+                                    <h5 class="card-title"> Cerradas </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="closed_incidents"
-                                               nolabel="1"/>
+                                        <field name="closed_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Ciclo de atención finalizado
-                                    </span>
+                                    <span class="text-muted"> Ciclo de atención finalizado </span>
                                 </div>
                             </div>
                         </div>
@@ -144,16 +110,12 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Tiempo promedio
-                                    </h5>
+                                    <h5 class="card-title"> Tiempo promedio </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="average_resolution_minutes"
-                                               nolabel="1"/>
+                                        <field name="average_resolution_minutes" nolabel="1"/>
+                                        <span class="fs-6 text-muted">min</span>
                                     </div>
-                                    <span class="text-muted">
-                                        Minutos hasta la resolución
-                                    </span>
+                                    <span class="text-muted"> Minutos hasta la resolución </span>
                                 </div>
                             </div>
                         </div>
@@ -162,24 +124,148 @@
                         <div class="col-lg-3 col-md-6">
                             <div class="card shadow-sm h-100">
                                 <div class="card-body">
-                                    <h5 class="card-title">
-                                        Reclasificaciones
-                                    </h5>
+                                    <h5 class="card-title"> Reclasificaciones </h5>
                                     <div class="display-4 fw-bold">
-                                        <field name="reclassified_incidents"
-                                               nolabel="1"/>
+                                        <field name="reclassified_incidents" nolabel="1"/>
                                     </div>
-                                    <span class="text-muted">
-                                        Recomendaciones aceptadas
-                                    </span>
+                                    <span class="text-muted"> Recomendaciones aceptadas </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Backlog operativo -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Backlog operativo </h5>
+                                    <div class="display-4 fw-bold">
+                                        <field name="backlog_incidents" nolabel="1"/>
+                                        <span class="fs-6 text-muted"> tickets</span>
+                                    </div>
+                                    <span class="text-muted"> Pendientes de gestión </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recomendaciones aceptadas -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Recomendaciones aceptadas </h5>
+                                    <div class="display-4 fw-bold">
+                                        <field name="recommendation_acceptance_rate" nolabel="1"/>
+                                        <span class="fs-4">%</span>
+                                    </div>
+                                    <span class="text-muted"> Porcentaje de aceptación </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Clasificación validada -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Clasificación validada </h5>
+                                    <div class="display-4 fw-bold">
+                                        <field name="validated_classification_rate" nolabel="1"/>
+                                        <span class="fs-4">%</span>
+                                    </div>
+                                    <span class="text-muted"> Coincidencia con selección inicial </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tiempo promedio de asignación -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Tiempo promedio de asignación </h5>
+                                    <div class="display-4 fw-bold">
+                                        <field name="average_assignment_minutes" nolabel="1"/>
+                                        <span class="fs-6 text-muted">min</span>
+                                    </div>
+                                    <span class="text-muted"> Minutos hasta asignación </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cumplimiento SLA -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Cumplimiento SLA </h5>
+                                    <div class="display-4 fw-bold">
+                                        <field name="sla_compliance_rate" nolabel="1"/>
+                                        <span>%</span>
+                                    </div>
+                                    <span class="text-muted"> Casos resueltos dentro del objetivo </span>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- SLA cumplidos -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100 border-success">
+                                <div class="card-body">
+                                    <h5 class="card-title"> SLA cumplidos </h5>
+                                    <div class="display-4 fw-bold text-success">
+                                        <field name="sla_met_incidents" nolabel="1"/>
+                                        <span class="fs-6 text-muted">tickets</span>
+                                    </div>
+                                    <span class="text-muted"> Resueltos dentro del tiempo objetivo </span>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- SLA incumplidos -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100 border-danger">
+                                <div class="card-body">
+                                    <h5 class="card-title"> SLA incumplidos </h5>
+                                    <div class="display-4 fw-bold text-danger">
+                                        <field name="sla_breached_incidents" nolabel="1"/>
+                                    </div>
+                                    <span class="text-muted"> Resueltos fuera del tiempo objetivo </span>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Próximos a vencer -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100 border-warning">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Próximos a vencer </h5>
+                                    <div class="display-4 fw-bold text-warning">
+                                        <field name="sla_warning_incidents" nolabel="1"/>
+                                    </div>
+                                    <span class="text-muted"> Casos abiertos en zona de alerta </span>
+
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- SLA vencidos pendientes -->
+                        <div class="col-lg-3 col-md-6">
+                            <div class="card shadow-sm h-100 border-danger">
+                                <div class="card-body">
+                                    <h5 class="card-title"> Vencidos pendientes </h5>
+                                    <div class="display-4 fw-bold text-danger">
+                                        <field name="sla_open_breached_incidents" nolabel="1"/>
+                                    </div>
+                                    <span class="text-muted"> Casos abiertos fuera del SLA </span>
+
                                 </div>
                             </div>
                         </div>
 
                     </div>
 
-                    <div class="alert alert-info mt-4"
-                         role="alert">
+                    <div class="alert alert-info mt-4" role="alert">
                         Los indicadores se calculan con la información
                         actual registrada en el módulo de incidencias.
                     </div>
@@ -193,16 +279,13 @@
     </record>
 
     <!-- Acción -->
-    <record id="action_incident_dashboard"
-            model="ir.actions.act_window">
+    <record id="action_incident_dashboard" model="ir.actions.act_window">
 
         <field name="name">Dashboard Operacional</field>
         <field name="res_model">incident.dashboard</field>
         <field name="view_mode">form</field>
-        <field name="view_id"
-               ref="view_incident_dashboard_form"/>
-        <field name="res_id"
-               ref="incident_dashboard_main"/>
+        <field name="view_id" ref="view_incident_dashboard_form"/>
+        <field name="res_id" ref="incident_dashboard_main"/>
         <field name="target">current</field>
 
     </record>

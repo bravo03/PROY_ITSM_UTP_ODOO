@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- =====================================================
+         GRÁFICO: INCIDENCIAS POR ESTADO
+         ===================================================== -->
+
+    <record id="view_incident_analysis_state_graph" model="ir.ui.view">
+
+        <field name="name">incident.ticket.analysis.state.graph</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <graph string="Incidencias por Estado" type="bar">
+                <field name="state"/>
+            </graph>
+
+        </field>
+
+    </record>
+
+
+    <!-- =====================================================
+         GRÁFICO: INCIDENCIAS POR PROCESO
+         ===================================================== -->
+
+    <record id="view_incident_analysis_process_graph" model="ir.ui.view">
+        <field name="name">incident.ticket.analysis.process.graph</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <graph string="Incidencias por Proceso" type="bar">
+                <field name="process_id"/>
+            </graph>
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         GRÁFICO: INCIDENCIAS POR EQUIPO RESOLUTOR
+         ===================================================== -->
+
+    <record id="view_incident_analysis_team_graph" model="ir.ui.view">
+
+        <field name="name">incident.ticket.analysis.team.graph</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <graph string="Incidencias por Equipo Resolutor" type="bar">
+                <field name="assigned_team_id"/>
+            </graph>
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         PIVOT PARA ANÁLISIS DINÁMICO
+         ===================================================== -->
+
+    <record id="view_incident_analysis_pivot" model="ir.ui.view">
+        <field name="name">incident.ticket.analysis.pivot</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis Operacional de Incidencias">
+                <field name="process_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="assigned_team_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN: ESTADOS
+         ===================================================== -->
+
+    <record id="action_incident_analysis_state" model="ir.actions.act_window">
+        <field name="name">Incidencias por Estado</field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_incident_analysis_state_graph"/>
+        <field name="domain">
+            [
+                ('state', 'in',
+                ['created','assigned','in_progress','resolved','closed'])
+            ]
+        </field>
+
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN: PROCESOS
+         ===================================================== -->
+
+    <record id="action_incident_analysis_process" model="ir.actions.act_window">
+        <field name="name">Incidencias por Proceso</field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode">graph</field>
+
+        <field name="view_id" ref="view_incident_analysis_process_graph"/>
+
+        <field name="domain">
+            [
+                ('state', 'in',
+                ['created','assigned','in_progress','resolved','closed'])
+            ]
+        </field>
+
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN: EQUIPOS
+         ===================================================== -->
+
+    <record id="action_incident_analysis_team" model="ir.actions.act_window">
+
+        <field name="name">Incidencias por Equipo</field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode">graph</field>
+        <field name="view_id" ref="view_incident_analysis_team_graph"/>
+        <field name="domain">
+            [
+                ('assigned_team_id', '!=', False)
+            ]
+        </field>
+
+    </record>
+
+
+    <!-- =====================================================
+         ACCIÓN: PIVOT
+         ===================================================== -->
+
+    <record id="action_incident_analysis_pivot" model="ir.actions.act_window">
+
+        <field name="name">Análisis de Incidencias</field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="view_incident_analysis_pivot"/>
+        <field name="domain">
+           [  ('state', 'in', ['created','assigned','in_progress','resolved','closed'])]
+        </field>
+
+    </record>
+
+
+    <!-- =====================================================
+     ALERTAS SLA
+     ===================================================== -->
+    <record id="view_incident_sla_alerts_list" model="ir.ui.view">
+        <field name="name">incident.ticket.sla.alerts.list</field>
+        <field name="model">incident.ticket</field>
+        <field name="arch" type="xml">
+            <list string="Alertas SLA" create="0" delete="0" default_order="sla_deadline asc">
+                <field name="name" string="Incidencia"/>
+                <field name="process_id"/>
+                <field name="application_id"/>
+                <field name="priority"/>
+                <field name="assigned_team_id"/>
+                <field name="assigned_user_id"/>
+                <field name="state"/>
+                <field name="sla_target_minutes" string="SLA objetivo"/>
+                <field name="sla_deadline" string="Fecha límite"/>
+                <field name="sla_resolution_minutes" string="Tiempo consumido"/>
+                <field name="sla_status" string="Estado SLA" widget="badge" decoration-warning="sla_status == 'warning'" decoration-danger="sla_status == 'breached'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =====================================================
+    LA ACCION 
+     ===================================================== -->
+
+    <record id="action_incident_sla_alerts" model="ir.actions.act_window">
+
+        <field name="name"> Alertas SLA </field>
+        <field name="res_model">incident.ticket</field>
+        <field name="view_mode"> list,form </field>
+        <field name="view_id" ref="view_incident_sla_alerts_list"/>
+
+        <field name="domain">
+    [
+        ('state', 'in',
+            ['created','assigned','in_progress'])
+    ]
+        </field>
+
+        <field name="context">
+        {
+            'create': False
+        }
+        </field>
+
+    </record>
+
+</odoo>

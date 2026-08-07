@@ -47,5 +47,9 @@
      ===================================================== -->
      <menuitem id="menu_supervision_root" name="Supervisión" parent="incident_management.menu_incident_root" sequence="35"/>
      <menuitem id="menu_incident_dashboard" name="Dashboard Operacional" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_dashboard" sequence="10"/>
-
+     <menuitem id="menu_incident_analysis_state" name="Incidencias por Estado" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_analysis_state" sequence="20"/>
+     <menuitem id="menu_incident_analysis_process" name="Incidencias por Proceso" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_analysis_process" sequence="30"/>
+     <menuitem id="menu_incident_analysis_team" name="Incidencias por Equipo" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_analysis_team" sequence="40"/>
+     <menuitem id="menu_incident_analysis_pivot" name="Análisis de Incidencias" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_analysis_pivot" sequence="50"/>
+     <menuitem id="menu_incident_sla_alerts" name="Alertas SLA" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_sla_alerts" sequence="15"/>
 </odoo>

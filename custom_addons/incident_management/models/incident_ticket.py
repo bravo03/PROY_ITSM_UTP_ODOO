@@ -1,6 +1,7 @@
 # Herramientas principales del framework Odoo.
 from odoo import api, fields, models
 from odoo.exceptions import UserError
+from datetime import timedelta
 
 
 class IncidentTicket(models.Model):
@@ -112,8 +113,6 @@ class IncidentTicket(models.Model):
         readonly=True,
     )
 
-
-
     # ---------------------------------------------------------
     # ASIGNACIÓN OPERATIVA
     # ---------------------------------------------------------
@@ -132,7 +131,7 @@ class IncidentTicket(models.Model):
         readonly=True,
     )
 
-     # ---------------------------------------------------------
+    # ---------------------------------------------------------
 
     confidence = fields.Float(
         string="Nivel de coincidencia (%)",
@@ -179,18 +178,16 @@ class IncidentTicket(models.Model):
         readonly=True,
     )
 
-    #cierre de la incidencia
+    # cierre de la incidencia
     closed_date = fields.Datetime(
         string="Fecha de cierre",
         readonly=True,
     )
 
-
     # Detalle de la solución aplicada por el analista.
     resolution_notes = fields.Text(
         string="Detalle de resolución",
     )
-
 
     priority = fields.Selection(
         [
@@ -244,6 +241,127 @@ class IncidentTicket(models.Model):
     )
 
     # ---------------------------------------------------------
+    # GESTIÓN DE SLA
+    # ---------------------------------------------------------
+
+    sla_target_minutes = fields.Integer(
+        string="SLA objetivo (min)",
+        default=60,
+        readonly=True,
+        help="Tiempo objetivo configurado para la atención de la incidencia.",
+    )
+
+    sla_deadline = fields.Datetime(
+        string="Fecha límite SLA",
+        compute="_compute_sla_deadline",
+        store=True,
+    )
+
+    sla_status = fields.Selection(
+        [
+            ("on_time", "En tiempo"),
+            ("warning", "Próximo a vencer"),
+            ("breached", "SLA vencido"),
+            ("met", "SLA cumplido"),
+        ],
+        string="Estado SLA",
+        compute="_compute_sla_status",
+        store=False,
+    )
+
+    sla_resolution_minutes = fields.Float(
+        string="Tiempo consumido SLA (min)",
+        compute="_compute_sla_status",
+        store=False,
+        digits=(16, 2),
+    )
+
+    # -------------------------------------------------------------------------------
+
+    @api.depends(
+        "generation_date",
+        "sla_target_minutes",
+    )
+    def _compute_sla_deadline(self):
+        """
+        Calcula la fecha límite del SLA a partir de la fecha
+        de generación de la incidencia y el objetivo definido.
+        """
+
+        for ticket in self:
+
+            if ticket.generation_date and ticket.sla_target_minutes:
+                ticket.sla_deadline = ticket.generation_date + timedelta(
+                    minutes=ticket.sla_target_minutes
+                )
+            else:
+                ticket.sla_deadline = False
+
+    # ---------------------------------------------------------------------------
+
+    @api.depends(
+        "generation_date",
+        "resolved_date",
+        "state",
+        "sla_deadline",
+        "sla_target_minutes",
+    )
+    def _compute_sla_status(self):
+        """
+        Calcula dinámicamente el tiempo consumido y
+        el estado actual del SLA.
+        """
+
+        now = fields.Datetime.now()
+
+        for ticket in self:
+
+            ticket.sla_resolution_minutes = 0
+            ticket.sla_status = "on_time"
+
+            if not ticket.generation_date or not ticket.sla_deadline:
+                continue
+
+            # Si está resuelto usamos la fecha de resolución.
+            # Si continúa abierto usamos la hora actual.
+            reference_date = ticket.resolved_date if ticket.resolved_date else now
+
+            elapsed_minutes = (
+                reference_date - ticket.generation_date
+            ).total_seconds() / 60
+
+            ticket.sla_resolution_minutes = max(
+                elapsed_minutes,
+                0,
+            )
+
+            # ---------------------------------------------
+            # INCIDENCIA RESUELTA
+            # ---------------------------------------------
+
+            if ticket.resolved_date:
+
+                if ticket.resolved_date <= ticket.sla_deadline:
+                    ticket.sla_status = "met"
+                else:
+                    ticket.sla_status = "breached"
+                continue
+
+            # ---------------------------------------------
+            # INCIDENCIA ABIERTA
+            # ---------------------------------------------
+
+            remaining_minutes = (ticket.sla_deadline - now).total_seconds() / 60
+            if remaining_minutes < 0:
+                ticket.sla_status = "breached"
+            elif remaining_minutes <= (ticket.sla_target_minutes * 0.20):
+                ticket.sla_status = "warning"
+            else:
+                ticket.sla_status = "on_time"
+
+    # ---------------------------------------------------------------------------
+
+    # ---------------------------------------------------------
     # COMBOS DEPENDIENTES
     # ---------------------------------------------------------
 
@@ -268,7 +386,6 @@ class IncidentTicket(models.Model):
     # ANÁLISIS DE LA INCIDENCIA
     # ---------------------------------------------------------
 
-    
     def action_register_incident(self):
         """
         Acción principal ejecutada por el Asesor CAC.
@@ -276,28 +393,28 @@ class IncidentTicket(models.Model):
         el ITSM Copilot antes de permitir la generación.
         """
         self.ensure_one()
-    # -----------------------------------------------------
-    # 1. VALIDAR EVIDENCIA
-    # -----------------------------------------------------
+        # -----------------------------------------------------
+        # 1. VALIDAR EVIDENCIA
+        # -----------------------------------------------------
         if not self.evidence_ids:
             raise UserError(
-                "Estimado usuario, debe adjuntar al menos una evidencia "
-                "antes de registrar la incidencia."
+                "Estimado usuario, adjunte evidencia donde se visualice "
+                "el error que impide continuar con el proceso."
             )
-    # -----------------------------------------------------
-    # 2. EJECUTAR AUTOMÁTICAMENTE EL ITSM COPILOT
-    # -----------------------------------------------------
+        # -----------------------------------------------------
+        # 2. EJECUTAR AUTOMÁTICAMENTE EL ITSM COPILOT
+        # -----------------------------------------------------
         self.action_analyze_incident()
-    # -----------------------------------------------------
-    # 3. NO GENERAR TODAVÍA LA INCIDENCIA
-    # -----------------------------------------------------
-    # El análisis cambia el estado a 'analyzed'.
-    # La vista mostrará ahora el resultado del ITSM Copilot.
-    # El Asesor CAC deberá revisar la recomendación antes
-    # de confirmar definitivamente la generación.
+        # -----------------------------------------------------
+        # 3. NO GENERAR TODAVÍA LA INCIDENCIA
+        # -----------------------------------------------------
+        # El análisis cambia el estado a 'analyzed'.
+        # La vista mostrará ahora el resultado del ITSM Copilot.
+        # El Asesor CAC deberá revisar la recomendación antes
+        # de confirmar definitivamente la generación.
 
         return True
-    
+
     def action_analyze_incident(self):
         """
         Envía la descripción al motor y presenta la recomendación.
@@ -323,18 +440,12 @@ class IncidentTicket(models.Model):
             if matches:
                 ticket.matched_patterns = " • ".join(matches)
             else:
-                ticket.matched_patterns = (
-                    "No se encontraron patrones coincidentes."
-                )
+                ticket.matched_patterns = "No se encontraron patrones coincidentes."
 
             # Obtiene los procesos para compararlos.
-            selected_process = self._normalize_text(
-                ticket.process_id.name
-            )
+            selected_process = self._normalize_text(ticket.process_id.name)
 
-            suggested_process = self._normalize_text(
-                ticket.suggested_process
-            )
+            suggested_process = self._normalize_text(ticket.suggested_process)
 
             # Registra la fecha de ejecución del motor.
             ticket.analysis_date = fields.Datetime.now()
@@ -388,15 +499,13 @@ class IncidentTicket(models.Model):
         Aplica la clasificación recomendada por el ITSM Copilot.
         Actualiza el formulario para que el Asesor CAC pueda revisar
         la clasificación corregida antes de confirmar la generación.
-        Este método NO genera todavía el número INC.        
+        Este método NO genera todavía el número INC.
         """
 
         self.ensure_one()
 
         if not self.suggested_process:
-            raise UserError(
-                "No existe una recomendación que pueda aplicarse."
-            )
+            raise UserError("No existe una recomendación que pueda aplicarse.")
 
         # Busca el proceso recomendado en el catálogo.
         recommended_process = self._find_record_by_normalized_name(
@@ -431,9 +540,7 @@ class IncidentTicket(models.Model):
         ]
 
         if recommended_application:
-            summary_domain.append(
-                ("application_id", "=", recommended_application.id)
-            )
+            summary_domain.append(("application_id", "=", recommended_application.id))
 
         recommended_summary = self._find_record_by_normalized_name(
             model_name="incident.summary",
@@ -448,15 +555,16 @@ class IncidentTicket(models.Model):
         self.is_reclassified = True
 
         self.reclassification_reason = (
-        f"El Asesor CAC aceptó la recomendación del ITSM Copilot. "
-        f"La incidencia fue reclasificada de "
-        f"«{original_process}» a «{recommended_process.name}»."
-        f"Revise la clasificación actualizada antes de confirmar "
-        f"la generación de la incidencia."
+            f"El Asesor CAC aceptó la recomendación del ITSM Copilot. "
+            f"La incidencia fue reclasificada de "
+            f"«{original_process}» a «{recommended_process.name}»."
+            f"Revise la clasificación actualizada antes de confirmar "
+            f"la generación de la incidencia."
         )
 
         return True
-###################################################################################
+
+    ###################################################################################
     def action_confirm_generation(self):
         """
         Confirma la creación definitiva de la incidencia.
@@ -476,8 +584,7 @@ class IncidentTicket(models.Model):
 
         if self.state != "analyzed":
             raise UserError(
-                "La incidencia debe ser analizada antes de "
-                "confirmar su generación."
+                "La incidencia debe ser analizada antes de " "confirmar su generación."
             )
 
         # -----------------------------------------------------
@@ -496,7 +603,7 @@ class IncidentTicket(models.Model):
 
         if not self.evidence_ids:
             raise UserError(
-              "Estimado usuario, adjunte evidencia donde se visualice el error que impide continuar con el proceso."
+                "Estimado usuario, adjunte evidencia donde se visualice el error que impide continuar con el proceso."
             )
 
         # -----------------------------------------------------
@@ -505,7 +612,7 @@ class IncidentTicket(models.Model):
 
         return self._finalize_incident_creation()
 
-###################################################################################
+    ###################################################################################
 
     def action_keep_classification(self):
         """
@@ -520,8 +627,6 @@ class IncidentTicket(models.Model):
 
         # Guarda el proceso seleccionado originalmente.
         original_process = self.process_id.name
-
-        
 
         # Registra que el asesor decidió mantener su selección.
         self.classification_decision = "maintained"
@@ -538,8 +643,6 @@ class IncidentTicket(models.Model):
         # Importante:
         # aquí NO se genera todavía el ticket.
         return True
-
-
 
     # ---------------------------------------------------------
     # OPERACIÓN DEL EQUIPO RESOLUTOR
@@ -576,14 +679,11 @@ class IncidentTicket(models.Model):
 
         if self.state != "assigned":
             raise UserError(
-                "La incidencia debe estar asignada antes de iniciar "
-                "su atención."
+                "La incidencia debe estar asignada antes de iniciar " "su atención."
             )
 
         if self.assigned_user_id != self.env.user:
-            raise UserError(
-                "Solo el analista asignado puede iniciar la atención."
-            )
+            raise UserError("Solo el analista asignado puede iniciar la atención.")
 
         self.attention_date = fields.Datetime.now()
         self.state = "in_progress"
@@ -602,14 +702,11 @@ class IncidentTicket(models.Model):
 
         if self.state != "in_progress":
             raise UserError(
-                "La incidencia debe encontrarse en atención "
-                "antes de ser resuelta."
+                "La incidencia debe encontrarse en atención " "antes de ser resuelta."
             )
 
         if self.assigned_user_id != self.env.user:
-            raise UserError(
-                "Solo el analista asignado puede resolver la incidencia."
-            )
+            raise UserError("Solo el analista asignado puede resolver la incidencia.")
 
         if not self.resolution_notes:
             raise UserError(
@@ -621,9 +718,6 @@ class IncidentTicket(models.Model):
         self.state = "resolved"
 
         return True
-
-       
-
 
     def action_close_incident(self):
         """
@@ -659,10 +753,7 @@ class IncidentTicket(models.Model):
 
         if self.name == "Nuevo":
             self.name = (
-                self.env["ir.sequence"].next_by_code(
-                    "incident.ticket"
-                )
-                or "Nuevo"
+                self.env["ir.sequence"].next_by_code("incident.ticket") or "Nuevo"
             )
 
         if self.name == "Nuevo":
@@ -671,8 +762,7 @@ class IncidentTicket(models.Model):
                 "Revise la configuración de la secuencia."
             )
 
-
-         # Busca y asigna el equipo resolutor.
+        # Busca y asigna el equipo resolutor.
         recommended_team = self.env["incident.team"].search(
             [
                 ("name", "=ilike", self.suggested_group),
@@ -690,20 +780,17 @@ class IncidentTicket(models.Model):
 
         # Continúa aquí la redirección a Mis incidencias.
 
-
-
+        # --------------------------------------------------
 
         # -----------------------------------------------------
         # REDIRECCIONAR A "MIS INCIDENCIAS"
         # -----------------------------------------------------
         # Recupera la acción definida en la vista XML para mostrar
         # únicamente las incidencias creadas por el usuario actual.
-        action = self.env.ref(
-            "incident_management.action_my_incident_tickets"
-             ).read()[0]
-
+        action = self.env.ref("incident_management.action_my_incident_tickets").read()[
+            0
+        ]
         action["target"] = "current"
-
         return action
 
     # ---------------------------------------------------------
@@ -714,10 +801,7 @@ class IncidentTicket(models.Model):
         """
         Reutiliza el normalizador del motor inteligente.
         """
-
-        return self.env[
-            "classification.engine"
-        ].normalize_text(text or "")
+        return self.env["classification.engine"].normalize_text(text or "")
 
     def _find_record_by_normalized_name(
         self,
@@ -727,25 +811,17 @@ class IncidentTicket(models.Model):
     ):
         """
         Busca un catálogo comparando nombres normalizados.
-
         Esto permite reconocer, por ejemplo:
-
         'Reposición de SIM'
         'REPOSICION DE SIM'
         """
-
         if not expected_name:
             return False
-
         domain = list(extra_domain or [])
         domain.append(("active", "=", True))
-
         records = self.env[model_name].search(domain)
-
         expected_normalized = self._normalize_text(expected_name)
-
         for record in records:
             if self._normalize_text(record.name) == expected_normalized:
                 return record
-
         return False
