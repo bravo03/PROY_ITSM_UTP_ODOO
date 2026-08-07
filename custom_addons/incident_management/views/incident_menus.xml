@@ -1,106 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <!-- =====================================================
+     <!-- =====================================================
          MENÚ PRINCIPAL DE LA APLICACIÓN
          Se crea explícitamente como un registro ir.ui.menu.
          ===================================================== -->
 
-    <record id="menu_incident_root" model="ir.ui.menu">
-        <field name="name">ITSM Copilot</field>
-        <field name="sequence">10</field>
-    </record>
+     <record id="menu_incident_root" model="ir.ui.menu">
+          <field name="name">ITSM Copilot</field>
+          <field name="sequence">10</field>
+     </record>
 
 
-    <!-- =====================================================
+     <!-- =====================================================
          PORTAL CAC
          ===================================================== -->
+     <menuitem id="menu_portal_cac_root" name="Portal CAC" parent="incident_management.menu_incident_root" sequence="10"/>
+     <menuitem id="menu_incident_register" name="Registrar incidencia" parent="incident_management.menu_portal_cac_root" action="incident_management.action_incident_ticket_register" sequence="10"/>
+     <menuitem id="menu_my_incidents" name="Mis incidencias" parent="incident_management.menu_portal_cac_root" action="incident_management.action_my_incident_tickets" sequence="20"/>
 
-    <menuitem id="menu_portal_cac_root"
-              name="Portal CAC"
-              parent="incident_management.menu_incident_root"
-              sequence="10"/>
-
-    <menuitem id="menu_incident_register"
-              name="Registrar incidencia"
-              parent="incident_management.menu_portal_cac_root"
-              action="incident_management.action_incident_ticket_register"
-              sequence="10"/>
-
-    <menuitem id="menu_my_incidents"
-              name="Mis incidencias"
-              parent="incident_management.menu_portal_cac_root"
-              action="incident_management.action_my_incident_tickets"
-              sequence="20"/>
-
-
-    <!-- =====================================================
+     <!-- =====================================================
          OPERACIÓN N1
          ===================================================== -->
-
-    <menuitem id="menu_n1_operation_root"
-              name="Operación N1"
-              parent="incident_management.menu_incident_root"
-              sequence="20"/>
-
-    <menuitem id="menu_incident_operation"
-              name="Gestión de incidencias"
-              parent="incident_management.menu_n1_operation_root"
-              action="incident_management.action_incident_ticket"
-              sequence="10"/>
+     <menuitem id="menu_n1_operation_root" name="Operación N1" parent="incident_management.menu_incident_root" sequence="20"/>
+     <menuitem id="menu_incident_operation" name="Gestión de incidencias" parent="incident_management.menu_n1_operation_root" action="incident_management.action_incident_ticket" sequence="10"/>
 
 
      <!-- =====================================================
      OPERACIÓN N2
      ===================================================== -->
+     <menuitem id="menu_n2_operation_root" name="Operación N2" parent="incident_management.menu_incident_root" sequence="30"/>
+     <menuitem id="menu_provision_queue" name="Bandeja PROVISIÓN" parent="incident_management.menu_n2_operation_root" action="incident_management.action_incident_ticket_provision" sequence="10"/>
 
-     <menuitem id="menu_n2_operation_root"
-               name="Operación N2"
-               parent="incident_management.menu_incident_root"
-               sequence="30"/>
-
-     <menuitem id="menu_provision_queue"
-               name="Bandeja PROVISIÓN"
-               parent="incident_management.menu_n2_operation_root"
-               action="incident_management.action_incident_ticket_provision"
-               sequence="10"/>
-
-    <!-- =====================================================
+     <!-- =====================================================
          CONFIGURACIÓN FUNCIONAL
-         ===================================================== -->
+     ===================================================== -->
+     <menuitem id="menu_incident_configuration_root" name="Configuración" parent="incident_management.menu_incident_root" sequence="40"/>
+     <menuitem id="menu_incident_process" name="Procesos críticos" parent="incident_management.menu_incident_configuration_root" action="incident_management.action_incident_process" sequence="10"/>
+     <menuitem id="menu_incident_application" name="Aplicaciones" parent="incident_management.menu_incident_configuration_root" action="incident_management.action_incident_application" sequence="20"/>
+     <menuitem id="menu_incident_summary" name="Resúmenes" parent="incident_management.menu_incident_configuration_root" action="incident_management.action_incident_summary" sequence="30"/>
+     <menuitem id="menu_incident_rule" name="Reglas de clasificación" parent="incident_management.menu_incident_configuration_root" action="incident_management.action_incident_rule" sequence="50"/>
+     <menuitem id="menu_incident_team" name="Equipos resolutores" parent="incident_management.menu_incident_configuration_root" action="incident_management.action_incident_team" sequence="40"/>
 
-    <menuitem id="menu_incident_configuration_root"
-              name="Configuración"
-              parent="incident_management.menu_incident_root"
-              sequence="40"/>
+     <!-- =====================================================
+         DASHBOARD SUPERSVISION
+     ===================================================== -->
+     <menuitem id="menu_supervision_root" name="Supervisión" parent="incident_management.menu_incident_root" sequence="35"/>
+     <menuitem id="menu_incident_dashboard" name="Dashboard Operacional" parent="incident_management.menu_supervision_root" action="incident_management.action_incident_dashboard" sequence="10"/>
 
-    <menuitem id="menu_incident_process"
-              name="Procesos críticos"
-              parent="incident_management.menu_incident_configuration_root"
-              action="incident_management.action_incident_process"
-              sequence="10"/>
-
-    <menuitem id="menu_incident_application"
-              name="Aplicaciones"
-              parent="incident_management.menu_incident_configuration_root"
-              action="incident_management.action_incident_application"
-              sequence="20"/>
-
-    <menuitem id="menu_incident_summary"
-              name="Resúmenes"
-              parent="incident_management.menu_incident_configuration_root"
-              action="incident_management.action_incident_summary"
-              sequence="30"/>
-
-    <menuitem id="menu_incident_rule"
-              name="Reglas de clasificación"
-              parent="incident_management.menu_incident_configuration_root"
-              action="incident_management.action_incident_rule"
-              sequence="50"/>
-
-    <menuitem id="menu_incident_team"
-              name="Equipos resolutores"
-              parent="incident_management.menu_incident_configuration_root"
-              action="incident_management.action_incident_team"
-              sequence="40"/>
 </odoo>

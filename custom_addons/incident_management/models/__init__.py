@@ -5,3 +5,4 @@ from . import incident_process
 from . import incident_application
 from . import incident_summary
 from . import incident_team
+from . import incident_dashboard
